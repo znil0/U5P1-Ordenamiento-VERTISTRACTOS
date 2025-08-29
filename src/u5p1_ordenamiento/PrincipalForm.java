@@ -11,9 +11,6 @@ public class PrincipalForm extends javax.swing.JFrame {
 
     int[] numberArray = new int[10000];
     
-    /**
-     * Creates new form PrincipalForm
-     */
     public PrincipalForm() {
         initComponents();
         
@@ -186,10 +183,15 @@ public class PrincipalForm extends javax.swing.JFrame {
     
     // MÉTODO DEL BOTÓN DE "QUICKSORT"
     private void btnQuickSortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuickSortActionPerformed
-
+        int[] copy = numberArray.clone(); 
+        
+        int[] arrayc = quickSort(copy, 0, copy.length - 1);
+        taSortedValues.setText(columnFormat(arrayc, true));
+        lbLoading.setText("¿Array Ordenado? = " + isArraySorted(arrayc));
+        
+        taRawValues.setText(columnFormat(numberArray, true));
     }//GEN-LAST:event_btnQuickSortActionPerformed
 
-    
     // MÉTODO DEL BOTÓN DE LLENAR ARRAY
     private void btnCreateArrayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateArrayActionPerformed
         // Este método se encarga de llenar el array.
@@ -214,19 +216,35 @@ public class PrincipalForm extends javax.swing.JFrame {
 
     // MÉTODO DEL BOTÓN DE "BURBUJA"
     private void btnBubbleSortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBubbleSortActionPerformed
-        taSortedValues.setText(columnFormat(bubbleSort(numberArray), true));
+        int[] copy = numberArray.clone();
+        
+        int[] arrayc = bubbleSort(copy);
+        taSortedValues.setText(columnFormat(arrayc, true));
+        lbLoading.setText("¿Array Ordenado? = " + isArraySorted(arrayc));
+        
+        taRawValues.setText(columnFormat(numberArray, true));
     }//GEN-LAST:event_btnBubbleSortActionPerformed
 
-    
     // MÉTODO DEL BOTÓN DE "RADIX"
     private void btnRadixActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRadixActionPerformed
+        int[] copy = numberArray.clone();
         
+        int[] arrayc = radixSort(copy);
+        taSortedValues.setText(columnFormat(arrayc, true));
+        lbLoading.setText("¿Array Ordenado? = " + isArraySorted(arrayc));
+        
+        taRawValues.setText(columnFormat(numberArray, true));
     }//GEN-LAST:event_btnRadixActionPerformed
 
-    
     // MÉTODO DEL BOTÓN DE "SHELLSORT"
     private void btnShellSortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnShellSortActionPerformed
+        int[] copy = numberArray.clone();
         
+        int[] arrayc = shellSort(copy);
+        taSortedValues.setText(columnFormat(arrayc, true));
+        lbLoading.setText("¿Array Ordenado? = " + isArraySorted(arrayc));
+        
+        taRawValues.setText(columnFormat(numberArray, true));
     }//GEN-LAST:event_btnShellSortActionPerformed
 
     
@@ -262,7 +280,6 @@ public class PrincipalForm extends javax.swing.JFrame {
         return txt;
     }
     
-    
     // METODO PARA ACTIVAR/DESACTIVAR BOTONES
     private void manageSortingButtons(boolean state){
         // Habilitar/Inhabilitar los botones de Ordenamiento
@@ -293,7 +310,6 @@ public class PrincipalForm extends javax.swing.JFrame {
         btnRadix.setForeground(textColor);
     }
     
-    
     // METODO DE ORDENACIÓN: BURBUJA
     private int[] bubbleSort(int [] unsortedArray){
         int n = unsortedArray.length, t;
@@ -310,20 +326,121 @@ public class PrincipalForm extends javax.swing.JFrame {
                 }
             }
         }
-        
+
         return unsortedArray;
     }
     
+    // MÉTODO DE ORDENACIÓN: QUICKSORT
+    private int[] quickSort(int[] array, int low, int high) {
+        
+        if (low < high) {
+            int pi = partition(array, low, high);
+
+            quickSort(array, low, pi - 1);   // Ordenar la parte izquierda
+            quickSort(array, pi + 1, high); // Ordenar la parte derecha
+        }
+        return array;
+    }
+    
+    // Método auxiliar de QuickSort para hacer la partición
+    private int partition(int[] array, int low, int high) {
+        int pivot = array[high]; // Último elemento como pivote
+        int i = (low - 1);
+
+        for (int j = low; j < high; j++) {
+            if (array[j] <= pivot) {
+                i++;
+                // Intercambio
+                int temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+        
+        // Colocar el pivote en su lugar correcto
+        int temp = array[i + 1];
+        array[i + 1] = array[high];
+        array[high] = temp;
+
+        return i + 1;
+    }
+    
+    // METODO DE ORDENACIÓN: SHELLSORT
+    private int[] shellSort(int [] unsortedArray){
+        int n = unsortedArray.length;
+      
+        for (int c = n / 2; c > 0; c /= 2) {
+            for (int i = c; i < n; i++) {
+                int temp = unsortedArray[i];
+                int j = i;
+                
+                //Desplaza los elementos que son mayores al valor temporal
+                while (j >= c && unsortedArray[j - c] > temp) {
+                    unsortedArray[j] = unsortedArray[j - c];
+                    j -= c;
+                }
+                unsortedArray[j] = temp;
+            }
+        }
+        
+        return unsortedArray;
+    }
+
+    // MÉTODO DE ORDENACIÓN: RADIX SORT
+    private int[] radixSort(int[] array) {
+        int max = getMax(array);
+        for (int exp = 1; max / exp > 0; exp *= 10) {
+            countingSort(array, exp);
+        }
+        return array;
+    }
+
+    // METODO AUXILIAR PARA OBTENER EL MÁXIMO VALOR DEL ARREGLO
+    private int getMax(int[] array) {
+        int max = array[0];
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > max) max = array[i];
+        }
+        return max;
+    }
+    
+    // METODO AUXILIAR PARA RADIXSORT     
+    private void countingSort(int[] array, int exp) {
+        int n = array.length;
+        int[] output = new int[n];
+        int[] count = new int[10];
+        // Contar ocurrencias de dígitos
+        for (int i = 0; i < n; i++) {
+            count[(array[i] / exp) % 10]++;
+        }
+        // Acumulado
+        for (int i = 1; i < 10; i++) {
+            count[i] += count[i - 1];
+        }
+        // Construir salida
+        for (int i = n - 1; i >= 0; i--) {
+            output[count[(array[i] / exp) % 10] - 1] = array[i];
+            count[(array[i] / exp) % 10]--;
+        }
+        // Copiar al original
+        for (int i = 0; i < n; i++) {
+            array[i] = output[i];
+        }
+    }
+    
+    // METODO AUXILIAR PARA COMPROBAR SI EL ARRAY ESTA ORDENADO
+    private boolean isArraySorted(int[] array){
+        boolean r = true;
+        for (int i = 0; i < array.length-1; i++){
+            if (array[i] > array[i+1]) r = false;
+        }
+        return r;
+    } 
+
     
     
     // -------------------------------------------------------------------------
     
-    
-    
-    
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
